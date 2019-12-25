@@ -17,5 +17,16 @@
     "miniprogram"
   ],
   "author": "rayosu",
-  "license": "ISC"
+  "license": "ISC",
+  "directories": {
+    "example": "examples"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rayosu/orm-weapp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rayosu/orm-weapp/issues"
+  },
+  "homepage": "https://github.com/rayosu/orm-weapp#readme"
 }
