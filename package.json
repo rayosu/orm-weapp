@@ -1,0 +1,21 @@
+{
+  "name": "orm-weapp",
+  "version": "1.0.0",
+  "description": "小程序云开发Model层ORM框架",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "orm",
+    "weapp",
+    "cloudbase",
+    "tcb",
+    "mongodb",
+    "model",
+    "wechat",
+    "miniprogram"
+  ],
+  "author": "rayosu",
+  "license": "ISC"
+}
