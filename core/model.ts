@@ -88,9 +88,9 @@ export abstract class Model {
     static async pageQuery<T>(condition: IQueryCondition, page_size: number, page_index: number, callback?: (err: IAPIError | null, datas: Array<T>) => void): Promise<IQueryResult> {
         let that = new (this as any)();
         let query = db.collection(that.$model).where(condition);
-        if (page_index >= 0 && page_size >= 0) {
+        if (page_index >= 0 && page_size > 0) {
             console.log(`${that.$model}.pageQuery`);
-            query = query.limit(page_size).skip(page_size * page_size);
+            query = query.limit(page_size).skip(page_index * page_size);
         }
         return await query.get({
             success: (res: IQueryResult) => {

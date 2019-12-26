@@ -91,9 +91,9 @@ export class Model {
         return __awaiter(this, void 0, void 0, function* () {
             let that = new this();
             let query = db.collection(that.$model).where(condition);
-            if (page_index >= 0 && page_size >= 0) {
+            if (page_index >= 0 && page_size > 0) {
                 console.log(`${that.$model}.pageQuery`);
-                query = query.limit(page_size).skip(page_size * page_size);
+                query = query.limit(page_size).skip(page_index * page_size);
             }
             return yield query.get({
                 success: (res) => {
