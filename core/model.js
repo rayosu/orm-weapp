@@ -29,17 +29,21 @@ export class Model {
         return __awaiter(this, void 0, void 0, function* () {
             let that = new this();
             console.log(`${that.$model}.get: ${_id}`);
-            return yield db.collection(that.$model).doc(_id).get({
-                success: (res) => {
-                    let entity = new this(res.data);
-                    if (callback)
-                        callback(null, entity);
-                },
-                fail: (err) => {
-                    this.errToast(err);
-                    if (callback)
-                        callback(err, null);
-                }
+            return new Promise((resolve) => {
+                db.collection(that.$model).doc(_id).get({
+                    success: (res) => {
+                        let entity = new this(res.data);
+                        if (callback)
+                            callback(null, entity);
+                        resolve({ data: entity });
+                    },
+                    fail: (err) => {
+                        this.errToast(err);
+                        if (callback)
+                            callback(err, null);
+                        resolve({ errMsg: err.errMsg });
+                    }
+                });
             });
         });
     }
@@ -53,18 +57,22 @@ export class Model {
             let that = new this();
             console.log(`${that.$model}.all`);
             // 查询当前用户所有的 DeviceName
-            return yield db.collection(that.$model).where({}).get({
-                success: (res) => {
-                    let datas = res.data.map((o) => new this(o));
-                    if (callback)
-                        callback(null, datas);
-                },
-                fail: (err) => {
-                    this.errToast(err);
-                    console.error('[数据库] [查询记录] 失败：', err);
-                    if (callback)
-                        callback(err, []);
-                }
+            return new Promise((resolve) => {
+                db.collection(that.$model).where({}).get({
+                    success: (res) => {
+                        let datas = res.data.map((o) => new this(o));
+                        if (callback)
+                            callback(null, datas);
+                        resolve({ data: datas });
+                    },
+                    fail: (err) => {
+                        this.errToast(err);
+                        console.error('[数据库] [查询记录] 失败：', err);
+                        if (callback)
+                            callback(err, []);
+                        resolve({ errMsg: err.errMsg });
+                    }
+                });
             });
         });
     }
@@ -95,17 +103,21 @@ export class Model {
                 console.log(`${that.$model}.pageQuery`);
                 query = query.limit(page_size).skip(page_index * page_size);
             }
-            return yield query.get({
-                success: (res) => {
-                    let datas = res.data.map((o) => new this(o));
-                    if (callback)
-                        callback(null, datas);
-                },
-                fail: (err) => {
-                    this.errToast(err);
-                    if (callback)
-                        callback(err, []);
-                }
+            return new Promise((resolve) => {
+                query.get({
+                    success: (res) => {
+                        let datas = res.data.map((o) => new this(o));
+                        if (callback)
+                            callback(null, datas);
+                        resolve({ data: datas });
+                    },
+                    fail: (err) => {
+                        this.errToast(err);
+                        if (callback)
+                            callback(err, []);
+                        resolve({ errMsg: err.errMsg });
+                    }
+                });
             });
         });
     }
@@ -118,17 +130,24 @@ export class Model {
         return __awaiter(this, void 0, void 0, function* () {
             let that = new this();
             console.log(`${that.$model}.count`);
-            return yield db.collection(that.$model).where(condition).count({
-                success: (res) => {
-                    if (callback)
-                        callback(null, res.total);
-                },
-                fail: (err) => {
-                    this.errToast(err);
-                    if (callback)
-                        callback(err, -1);
-                }
-            });
+            if (callback) {
+                return new Promise((resolve) => {
+                    db.collection(that.$model).where(condition).count({
+                        success: (res) => {
+                            if (callback)
+                                callback(null, res.total);
+                            resolve(res);
+                        },
+                        fail: (err) => {
+                            this.errToast(err);
+                            if (callback)
+                                callback(err, -1);
+                            resolve({ errMsg: err.errMsg });
+                        }
+                    });
+                });
+            }
+            return db.collection(that.$model).where(condition).count();
         });
     }
     /**
@@ -138,16 +157,25 @@ export class Model {
     save(callback) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`${this.$model}.save`);
-            return yield db.collection(this.$model).add({
-                data: this.toJson(),
-                success: (res) => {
-                    if (callback)
-                        callback(null, res._id);
-                },
-                fail: (err) => {
-                    if (callback)
-                        callback(err, null);
-                }
+            if (callback) {
+                return new Promise((resolve) => {
+                    db.collection(this.$model).add({
+                        data: this.toJson(),
+                        success: (res) => {
+                            if (callback)
+                                callback(null, res._id);
+                            resolve(res);
+                        },
+                        fail: (err) => {
+                            if (callback)
+                                callback(err, null);
+                            resolve({ errMsg: err.errMsg });
+                        }
+                    });
+                });
+            }
+            return db.collection(this.$model).add({
+                data: this.toJson()
             });
         });
     }
@@ -158,19 +186,28 @@ export class Model {
     update(callback) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`${this.$model}.update: ${this._id}`);
-            return yield db.collection(this.$model).doc(this._id).update({
-                data: this.toJson(),
-                success: (res) => {
-                    if (callback)
-                        callback(null, res.stats.updated);
-                },
-                fail: (err) => {
-                    if (callback)
-                        callback(err, 0);
-                }, complete: (res) => {
-                    console.log(res);
-                }
-            });
+            if (callback) {
+                return new Promise((resolve) => {
+                    db.collection(this.$model).doc(this._id).update({
+                        data: this.toJson(),
+                        success: (res) => {
+                            if (callback)
+                                callback(null, res.stats.updated);
+                            resolve(res);
+                        },
+                        fail: (err) => {
+                            if (callback)
+                                callback(err, 0);
+                            resolve({ errMsg: err.errMsg, stats: { updated: 0 } });
+                        }
+                    });
+                });
+            }
+            else {
+                return db.collection(this.$model).doc(this._id).update({
+                    data: this.toJson()
+                });
+            }
         });
     }
     /**
@@ -180,18 +217,27 @@ export class Model {
     delete(callback) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`${this.$model}.update: ${this._id}`);
-            return yield db.collection(this.$model).doc(this._id).remove({
-                success: (res) => {
-                    if (callback)
-                        callback(null, res.stats.removed);
-                },
-                fail: (err) => {
-                    if (callback)
-                        callback(err, 0);
-                }, complete: (res) => {
-                    console.log(res);
-                }
-            });
+            if (callback) {
+                return new Promise((resolve) => {
+                    db.collection(this.$model).doc(this._id).remove({
+                        success: (res) => {
+                            if (callback)
+                                callback(null, res.stats.removed);
+                            resolve(res);
+                        },
+                        fail: (err) => {
+                            if (callback)
+                                callback(err, 0);
+                            resolve({ errMsg: err.errMsg, stats: { removed: 0 } });
+                        }, complete: (res) => {
+                            console.log(res);
+                        }
+                    });
+                });
+            }
+            else {
+                return db.collection(this.$model).doc(this._id).remove();
+            }
         });
     }
     toJson() {
