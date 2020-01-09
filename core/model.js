@@ -21,7 +21,7 @@ export class Model {
         }
     }
     /**
-     * 获取数据
+     * 获取单条数据
      * @param _id
      * @param callback
      */
@@ -132,7 +132,7 @@ export class Model {
         });
     }
     /**
-     * 插入设备到数据库
+     * 保存
      * @param callback
      */
     save(callback) {
@@ -152,7 +152,7 @@ export class Model {
         });
     }
     /**
-     *更新数据
+     * 更新数据
      * @param callback
      */
     update(callback) {
@@ -163,6 +163,27 @@ export class Model {
                 success: (res) => {
                     if (callback)
                         callback(null, res.stats.updated);
+                },
+                fail: (err) => {
+                    if (callback)
+                        callback(err, 0);
+                }, complete: (res) => {
+                    console.log(res);
+                }
+            });
+        });
+    }
+    /**
+     * 删除数据
+     * @param callback
+     */
+    delete(callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log(`${this.$model}.update: ${this._id}`);
+            return yield db.collection(this.$model).doc(this._id).remove({
+                success: (res) => {
+                    if (callback)
+                        callback(null, res.stats.removed);
                 },
                 fail: (err) => {
                     if (callback)

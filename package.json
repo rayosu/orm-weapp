@@ -28,5 +28,8 @@
   "bugs": {
     "url": "https://github.com/rayosu/orm-weapp/issues"
   },
-  "homepage": "https://github.com/rayosu/orm-weapp#readme"
+  "homepage": "https://github.com/rayosu/orm-weapp#readme",
+  "devDependencies": {
+    "miniprogram-api-typings": "^2.10.0-1"
+  }
 }

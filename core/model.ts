@@ -5,6 +5,7 @@ import IQuerySingleResult = DB.IQuerySingleResult;
 import IQueryCondition = DB.IQueryCondition;
 import ICountResult = DB.ICountResult;
 import DocumentId = DB.DocumentId;
+import IRemoveResult = DB.IRemoveResult;
 
 const db = wx.cloud.database();
 
@@ -26,7 +27,7 @@ export abstract class Model {
     }
 
     /**
-     * 获取数据
+     * 获取单条数据
      * @param _id
      * @param callback
      */
@@ -124,7 +125,7 @@ export abstract class Model {
     }
 
     /**
-     * 插入设备到数据库
+     * 保存
      * @param callback
      */
     async save(callback?: (err: IAPIError | null, _id: DocumentId | null) => void): Promise<IAddResult> {
@@ -141,7 +142,7 @@ export abstract class Model {
     }
 
     /**
-     *更新数据
+     * 更新数据
      * @param callback
      */
     async update(callback?: (err: IAPIError | null, updated: number) => void): Promise<IUpdateResult> {
@@ -150,6 +151,24 @@ export abstract class Model {
             data: this.toJson(),
             success: (res: IUpdateResult) => {
                 if (callback) callback(null, res.stats.updated)
+            },
+            fail: (err: IAPIError) => {
+                if (callback) callback(err, 0)
+            }, complete: (res) => {
+                console.log(res)
+            }
+        });
+    }
+
+    /**
+     * 删除数据
+     * @param callback
+     */
+    async delete(callback?: (err: IAPIError | null, updated: number) => void): Promise<IRemoveResult> {
+        console.log(`${this.$model}.update: ${this._id}`);
+        return await db.collection(this.$model).doc(this._id).remove({
+            success: (res: IRemoveResult) => {
+                if (callback) callback(null, res.stats.removed)
             },
             fail: (err: IAPIError) => {
                 if (callback) callback(err, 0)
