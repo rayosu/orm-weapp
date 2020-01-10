@@ -30,6 +30,17 @@ export abstract class Model {
     public _id: DocumentId;
 
     protected constructor(data: any) {
+        data = data || {};
+        let e = Reflect.enumerate(data);
+        for (let name of e) {
+            if (!name.startsWith('$') && this.hasOwnProperty(name)) {
+                try {
+                    this[name] = data[name];
+                } catch (e) {
+                    console.warn(e.message);
+                }
+            }
+        }
     }
 
     private static errToast(err: IAPIError) {

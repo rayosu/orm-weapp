@@ -17,6 +17,18 @@ export class Model {
         this.$except = [];
         // 只读字段
         this.$readonly = [];
+        data = data || {};
+        let e = Reflect.enumerate(data);
+        for (let name of e) {
+            if (!name.startsWith('$') && this.hasOwnProperty(name)) {
+                try {
+                    this[name] = data[name];
+                }
+                catch (e) {
+                    console.warn(e.message);
+                }
+            }
+        }
     }
     static errToast(err) {
         if (getApp().globalData.platform == 'devtools') {

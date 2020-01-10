@@ -5,6 +5,7 @@
     "module": "CommonJS",
     "target": "ES5",
     "allowJs": false,
+    "downlevelIteration": true,
     "experimentalDecorators": true,
     "noImplicitThis": true,
     "noImplicitReturns": true,
