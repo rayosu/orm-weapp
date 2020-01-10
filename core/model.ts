@@ -235,7 +235,7 @@ export abstract class Model {
         fieldNames.forEach((fieldName: string) => {
 
             let val = Reflect.get(this, fieldName);
-            if (typeof val == "string" || typeof val == "number" || typeof val == "boolean" || typeof val == "object") {
+            if (val instanceof String || val instanceof Number || val instanceof Boolean || val instanceof Array || val instanceof Map) {
                 if (fieldName != '_id' && fieldName != '_openid' && fieldName != '$model') data[fieldName] = val;
 
             } else if (val && val instanceof Object && Reflect.has(val, 'toJson')) {
