@@ -41,7 +41,7 @@ export abstract class Model {
     static async get<T>(_id: string, callback?: (err: IAPIError | null, entity: T | null) => void): Promise<TQuerySingleResult<T>> {
         let that = new (this as any)();
         console.log(`${that.$model}.get: ${_id}`);
-        return new Promise<TQuerySingleResult<T>>((resolve) => {
+        return await new Promise<TQuerySingleResult<T>>((resolve) => {
             db.collection(that.$model).doc(_id).get({
                 success: (res: IQuerySingleResult) => {
                     let entity = new (this as any)(res.data);
@@ -66,9 +66,10 @@ export abstract class Model {
         let that = new (this as any)();
         console.log(`${that.$model}.all`);
         // 查询当前用户所有的 DeviceName
-        return new Promise<TQueryResult<T>>((resolve) => {
+        return await new Promise<TQueryResult<T>>((resolve) => {
             db.collection(that.$model).where({}).get({
                 success: (res: IQueryResult) => {
+                    console.log(res);
                     let datas = res.data.map((o) => new (this as any)(o));
                     if (callback) callback(null, datas);
                     resolve({data: datas} as TQueryResult<T>);
@@ -107,7 +108,7 @@ export abstract class Model {
             console.log(`${that.$model}.pageQuery`);
             query = query.limit(page_size).skip(page_index * page_size);
         }
-        return new Promise<TQueryResult<T>>((resolve) => {
+        return await new Promise<TQueryResult<T>>((resolve) => {
             query.get({
                 success: (res: IQueryResult) => {
                     let datas = res.data.map((o) => new (this as any)(o));
@@ -132,7 +133,7 @@ export abstract class Model {
         let that = new (this as any)();
         console.log(`${that.$model}.count`);
         if (callback) {
-            return new Promise<ICountResult>((resolve) => {
+            return await new Promise<ICountResult>((resolve) => {
                 db.collection(that.$model).where(condition).count({
                     success: (res: ICountResult) => {
                         if (callback) callback(null, res.total);
@@ -146,7 +147,7 @@ export abstract class Model {
                 });
             })
         }
-        return db.collection(that.$model).where(condition).count();
+        return await db.collection(that.$model).where(condition).count();
     }
 
     /**
@@ -156,7 +157,7 @@ export abstract class Model {
     async save(callback?: (err: IAPIError | null, _id: DocumentId | null) => void): Promise<IAddResult> {
         console.log(`${this.$model}.save`);
         if (callback) {
-            return new Promise<IAddResult>((resolve) => {
+            return await new Promise<IAddResult>((resolve) => {
                 db.collection(this.$model).add({
                     data: this.toJson(),
                     success: (res: IAddResult) => {
@@ -170,7 +171,7 @@ export abstract class Model {
                 });
             })
         }
-        return db.collection(this.$model).add({
+        return await db.collection(this.$model).add({
             data: this.toJson()
         });
     }
@@ -182,7 +183,7 @@ export abstract class Model {
     async update(callback?: (err: IAPIError | null, updated: number) => void): Promise<IUpdateResult> {
         console.log(`${this.$model}.update: ${this._id}`);
         if (callback) {
-            return new Promise<IUpdateResult>((resolve) => {
+            return await new Promise<IUpdateResult>((resolve) => {
                 db.collection(this.$model).doc(this._id).update({
                     data: this.toJson(),
                     success: (res: IUpdateResult) => {
@@ -196,7 +197,7 @@ export abstract class Model {
                 });
             })
         } else {
-            return db.collection(this.$model).doc(this._id).update({
+            return await db.collection(this.$model).doc(this._id).update({
                 data: this.toJson()
             });
         }
@@ -209,7 +210,7 @@ export abstract class Model {
     async delete(callback?: (err: IAPIError | null, updated: number) => void): Promise<IRemoveResult> {
         console.log(`${this.$model}.update: ${this._id}`);
         if (callback) {
-            return new Promise<IRemoveResult>((resolve) => {
+            return await new Promise<IRemoveResult>((resolve) => {
                 db.collection(this.$model).doc(this._id).remove({
                     success: (res: IRemoveResult) => {
                         if (callback) callback(null, res.stats.removed)
@@ -224,7 +225,7 @@ export abstract class Model {
                 });
             })
         } else {
-            return db.collection(this.$model).doc(this._id).remove();
+            return await db.collection(this.$model).doc(this._id).remove();
         }
     }
 

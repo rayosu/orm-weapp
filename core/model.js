@@ -29,7 +29,7 @@ export class Model {
         return __awaiter(this, void 0, void 0, function* () {
             let that = new this();
             console.log(`${that.$model}.get: ${_id}`);
-            return new Promise((resolve) => {
+            return yield new Promise((resolve) => {
                 db.collection(that.$model).doc(_id).get({
                     success: (res) => {
                         let entity = new this(res.data);
@@ -57,9 +57,10 @@ export class Model {
             let that = new this();
             console.log(`${that.$model}.all`);
             // 查询当前用户所有的 DeviceName
-            return new Promise((resolve) => {
+            return yield new Promise((resolve) => {
                 db.collection(that.$model).where({}).get({
                     success: (res) => {
+                        console.log(res);
                         let datas = res.data.map((o) => new this(o));
                         if (callback)
                             callback(null, datas);
@@ -103,7 +104,7 @@ export class Model {
                 console.log(`${that.$model}.pageQuery`);
                 query = query.limit(page_size).skip(page_index * page_size);
             }
-            return new Promise((resolve) => {
+            return yield new Promise((resolve) => {
                 query.get({
                     success: (res) => {
                         let datas = res.data.map((o) => new this(o));
@@ -131,7 +132,7 @@ export class Model {
             let that = new this();
             console.log(`${that.$model}.count`);
             if (callback) {
-                return new Promise((resolve) => {
+                return yield new Promise((resolve) => {
                     db.collection(that.$model).where(condition).count({
                         success: (res) => {
                             if (callback)
@@ -147,7 +148,7 @@ export class Model {
                     });
                 });
             }
-            return db.collection(that.$model).where(condition).count();
+            return yield db.collection(that.$model).where(condition).count();
         });
     }
     /**
@@ -158,7 +159,7 @@ export class Model {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`${this.$model}.save`);
             if (callback) {
-                return new Promise((resolve) => {
+                return yield new Promise((resolve) => {
                     db.collection(this.$model).add({
                         data: this.toJson(),
                         success: (res) => {
@@ -174,7 +175,7 @@ export class Model {
                     });
                 });
             }
-            return db.collection(this.$model).add({
+            return yield db.collection(this.$model).add({
                 data: this.toJson()
             });
         });
@@ -187,7 +188,7 @@ export class Model {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`${this.$model}.update: ${this._id}`);
             if (callback) {
-                return new Promise((resolve) => {
+                return yield new Promise((resolve) => {
                     db.collection(this.$model).doc(this._id).update({
                         data: this.toJson(),
                         success: (res) => {
@@ -204,7 +205,7 @@ export class Model {
                 });
             }
             else {
-                return db.collection(this.$model).doc(this._id).update({
+                return yield db.collection(this.$model).doc(this._id).update({
                     data: this.toJson()
                 });
             }
@@ -218,7 +219,7 @@ export class Model {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`${this.$model}.update: ${this._id}`);
             if (callback) {
-                return new Promise((resolve) => {
+                return yield new Promise((resolve) => {
                     db.collection(this.$model).doc(this._id).remove({
                         success: (res) => {
                             if (callback)
@@ -236,7 +237,7 @@ export class Model {
                 });
             }
             else {
-                return db.collection(this.$model).doc(this._id).remove();
+                return yield db.collection(this.$model).doc(this._id).remove();
             }
         });
     }
