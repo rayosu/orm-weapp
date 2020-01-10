@@ -11,6 +11,12 @@ const db = wx.cloud.database();
 export class Model {
     constructor(data) {
         this.$model = 'NotSet';
+        // 数据表字段信息 留空则保存全部
+        this.$field = [];
+        // 数据排除字段
+        this.$except = [];
+        // 只读字段
+        this.$readonly = [];
     }
     static errToast(err) {
         if (getApp().globalData.platform == 'devtools') {
@@ -161,7 +167,7 @@ export class Model {
             if (callback) {
                 return yield new Promise((resolve) => {
                     db.collection(this.$model).add({
-                        data: this.toJson(),
+                        data: this.toJson('save'),
                         success: (res) => {
                             if (callback)
                                 callback(null, res._id);
@@ -176,7 +182,7 @@ export class Model {
                 });
             }
             return yield db.collection(this.$model).add({
-                data: this.toJson()
+                data: this.toJson('save')
             });
         });
     }
@@ -190,7 +196,7 @@ export class Model {
             if (callback) {
                 return yield new Promise((resolve) => {
                     db.collection(this.$model).doc(this._id).update({
-                        data: this.toJson(),
+                        data: this.toJson('update'),
                         success: (res) => {
                             if (callback)
                                 callback(null, res.stats.updated);
@@ -206,7 +212,7 @@ export class Model {
             }
             else {
                 return yield db.collection(this.$model).doc(this._id).update({
-                    data: this.toJson()
+                    data: this.toJson('update')
                 });
             }
         });
@@ -241,18 +247,26 @@ export class Model {
             }
         });
     }
-    toJson() {
+    toJson(op) {
         let fieldNames = Object.getOwnPropertyNames(this);
         let data = {};
         fieldNames.forEach((fieldName) => {
-            let val = Reflect.get(this, fieldName);
-            if (val instanceof String || val instanceof Number || val instanceof Boolean || val instanceof Array || val instanceof Map) {
-                if (fieldName != '_id' && fieldName != '_openid' && fieldName != '$model')
-                    data[fieldName] = val;
+            if (this.$field && this.$field.length && !this.$field.find(t => t == fieldName))
+                return;
+            if (this.$except && this.$except.length && this.$except.find(t => t == fieldName))
+                return;
+            if (op == 'update') {
+                if (this.$readonly.find(t => t == fieldName)) {
+                    return;
+                }
             }
-            else if (val && val instanceof Object && Reflect.has(val, 'toJson')) {
-                val = val.toJson();
-                data[fieldName] = val;
+            let val = Reflect.get(this, fieldName);
+            if (val && val instanceof Object && Reflect.has(val, 'toJson')) {
+                data[fieldName] = val.toJson();
+            }
+            else if (typeof val == "string" || typeof val == "number" || typeof val == "boolean" || typeof val == "object") {
+                if (!fieldName.startsWith('$') && !fieldName.startsWith('_'))
+                    data[fieldName] = val;
             }
         });
         return data;

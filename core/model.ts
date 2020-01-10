@@ -9,16 +9,23 @@ import IRemoveResult = DB.IRemoveResult;
 
 const db = wx.cloud.database();
 
-interface TQueryResult<T> extends IAPISuccessParam
-{
+interface TQueryResult<T> extends IAPISuccessParam {
     data: T[]
 }
+
 interface TQuerySingleResult<T> extends IAPISuccessParam {
     data: T
 }
 
 export abstract class Model {
     protected $model = 'NotSet';
+    // 数据表字段信息 留空则保存全部
+    protected $field = [];
+    // 数据排除字段
+    protected $except = [];
+    // 只读字段
+    protected $readonly = [];
+
     public _id: DocumentId;
 
     protected constructor(data: any) {
@@ -83,6 +90,7 @@ export abstract class Model {
             })
         })
     }
+
     /**
      * 条件查询数据库
      * @param condition
@@ -159,7 +167,7 @@ export abstract class Model {
         if (callback) {
             return await new Promise<IAddResult>((resolve) => {
                 db.collection(this.$model).add({
-                    data: this.toJson(),
+                    data: this.toJson('save'),
                     success: (res: IAddResult) => {
                         if (callback) callback(null, res._id)
                         resolve(res);
@@ -172,7 +180,7 @@ export abstract class Model {
             })
         }
         return await db.collection(this.$model).add({
-            data: this.toJson()
+            data: this.toJson('save')
         });
     }
 
@@ -185,7 +193,7 @@ export abstract class Model {
         if (callback) {
             return await new Promise<IUpdateResult>((resolve) => {
                 db.collection(this.$model).doc(this._id).update({
-                    data: this.toJson(),
+                    data: this.toJson('update'),
                     success: (res: IUpdateResult) => {
                         if (callback) callback(null, res.stats.updated)
                         resolve(res);
@@ -198,7 +206,7 @@ export abstract class Model {
             })
         } else {
             return await db.collection(this.$model).doc(this._id).update({
-                data: this.toJson()
+                data: this.toJson('update')
             });
         }
     }
@@ -229,18 +237,22 @@ export abstract class Model {
         }
     }
 
-    toJson() {
+    toJson(op?: string) {
         let fieldNames = Object.getOwnPropertyNames(this);
         let data = {};
         fieldNames.forEach((fieldName: string) => {
-
+            if (this.$field && this.$field.length && !this.$field.find(t => t == fieldName)) return;
+            if (this.$except && this.$except.length && this.$except.find(t => t == fieldName)) return;
+            if (op == 'update') {
+                if (this.$readonly.find(t => t == fieldName)) {
+                    return;
+                }
+            }
             let val = Reflect.get(this, fieldName);
-            if (val instanceof String || val instanceof Number || val instanceof Boolean || val instanceof Array || val instanceof Map) {
-                if (fieldName != '_id' && fieldName != '_openid' && fieldName != '$model') data[fieldName] = val;
-
-            } else if (val && val instanceof Object && Reflect.has(val, 'toJson')) {
-                val = val.toJson();
-                data[fieldName] = val;
+            if (val && val instanceof Object && Reflect.has(val, 'toJson')) {
+                data[fieldName] = val.toJson();
+            } else if (typeof val == "string" || typeof val == "number" || typeof val == "boolean" || typeof val == "object") {
+                if (!fieldName.startsWith('$') && !fieldName.startsWith('_')) data[fieldName] = val;
             }
         });
         return data;
