@@ -158,6 +158,34 @@ export class Model {
         });
     }
     /**
+     * 保存或更新
+     * @param callback
+     */
+    saveOrUpdate(callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let res;
+            if (this._id) {
+                // @ts-ignore
+                res = yield this.get(this._id);
+                if (res.data) {
+                    res = yield this.update((err, updated) => {
+                        if (callback)
+                            callback({ errMsg: err ? err.errMsg : undefined, _id: this._id, stats: { updated } });
+                    });
+                    return Promise.resolve(res);
+                }
+            }
+            delete this._id;
+            res = yield this.save((err, _id) => {
+                if (callback)
+                    callback({ errMsg: err ? err.errMsg : undefined, _id: _id, stats: { created: err ? 0 : 1 } });
+            });
+            let r = res;
+            r.stats.created = 1;
+            return Promise.resolve(r);
+        });
+    }
+    /**
      * 保存
      * @param callback
      */
@@ -193,13 +221,16 @@ export class Model {
     update(callback) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`${this.$model}.update: ${this._id}`);
+            console.assert(!this._id, `${this.$model}.update: _id 不能为空`);
             if (callback) {
                 return yield new Promise((resolve) => {
                     db.collection(this.$model).doc(this._id).update({
                         data: this.toJson('update'),
                         success: (res) => {
+                            if (res.stats.updated == 0)
+                                res.errMsg = 'nothing updated';
                             if (callback)
-                                callback(null, res.stats.updated);
+                                callback(res, res.stats.updated);
                             resolve(res);
                         },
                         fail: (err) => {
@@ -224,6 +255,7 @@ export class Model {
     delete(callback) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`${this.$model}.update: ${this._id}`);
+            console.assert(!this._id, '_id 不能为空');
             if (callback) {
                 return yield new Promise((resolve) => {
                     db.collection(this.$model).doc(this._id).remove({
