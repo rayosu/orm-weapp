@@ -31,7 +31,7 @@ export abstract class Model {
 
     protected constructor(data: any) {
         data = data || {};
-        let e = Reflect.enumerate(data);
+        let e = Object.getOwnPropertyNames(data);
         for (let name of e) {
             if (!name.startsWith('$') && this.hasOwnProperty(name)) {
                 try {
