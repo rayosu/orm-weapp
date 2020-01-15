@@ -96,7 +96,7 @@ export class Model {
         });
     }
     /**
-     * 条件查询数据库
+     * 条件查询
      * @param condition
      * @param callback
      */
@@ -105,6 +105,21 @@ export class Model {
             let that = new this();
             console.log(`${that.$model}.query`);
             return yield this.pageQuery(condition, -1, -1, callback);
+        });
+    }
+    /**
+     * 获取一条记录
+     * @param callback
+     */
+    static one(callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let that = new this();
+            console.log(`${that.$model}.query`);
+            return yield this.pageQuery({}, 1, 0, (err, datas) => {
+                let data = (datas && datas.length) ? datas[0] : undefined;
+                if (callback)
+                    callback(err, data);
+            });
         });
     }
     /**

@@ -104,7 +104,7 @@ export abstract class Model {
     }
 
     /**
-     * 条件查询数据库
+     * 条件查询
      * @param condition
      * @param callback
      */
@@ -112,6 +112,19 @@ export abstract class Model {
         let that = new (this as any)();
         console.log(`${that.$model}.query`);
         return await this.pageQuery<T>(condition, -1, -1, callback);
+    }
+
+    /**
+     * 获取一条记录
+     * @param callback
+     */
+    static async one<T>(callback?: (err?: IAPIError | null, data?: T) => void): Promise<TQueryResult<T>> {
+        let that = new (this as any)();
+        console.log(`${that.$model}.query`);
+        return await this.pageQuery<T>({}, 1, 0, (err, datas)=>{
+            let data = (datas && datas.length) ? datas[0] : undefined;
+            if(callback) callback(err, data);
+        });
     }
 
     /**

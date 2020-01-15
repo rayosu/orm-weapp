@@ -1,6 +1,6 @@
 {
   "name": "orm-weapp",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "小程序云开发Model层ORM框架",
   "main": "index.js",
   "scripts": {
