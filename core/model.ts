@@ -59,7 +59,7 @@ export abstract class Model {
      */
     static async get<T>(_id: string, callback?: (err: IAPIError | null, entity: T | null) => void): Promise<TQuerySingleResult<T>> {
         let that = new (this as any)();
-        console.log(`${that.$model}.get: ${_id}`);
+        console.debug(`[Model] ${that.$model}.get: ${_id}`);
         return await new Promise<TQuerySingleResult<T>>((resolve) => {
             db.collection(that.$model).doc(_id).get({
                 success: (res: IQuerySingleResult) => {
@@ -83,19 +83,19 @@ export abstract class Model {
      */
     static async all<T>(callback?: (err: IAPIError | null, datas: Array<T>) => void): Promise<TQueryResult<T>> {
         let that = new (this as any)();
-        console.log(`${that.$model}.all`);
+        console.debug(`[Model] ${that.$model}.all`);
         // 查询当前用户所有的 DeviceName
         return await new Promise<TQueryResult<T>>((resolve) => {
             db.collection(that.$model).where({}).get({
                 success: (res: IQueryResult) => {
-                    console.log(res);
+                    console.debug(`[Model] ${res}`);
                     let datas = res.data.map((o) => new (this as any)(o));
                     if (callback) callback(null, datas);
                     resolve({data: datas} as TQueryResult<T>);
                 },
                 fail: (err: IAPIError) => {
                     this.errToast(err);
-                    console.error('[数据库] [查询记录] 失败：', err);
+                    console.error('[Model] [查询记录] 失败：', err);
                     if (callback) callback(err, []);
                     resolve({errMsg: err.errMsg} as TQueryResult<T>);
                 }
@@ -110,7 +110,7 @@ export abstract class Model {
      */
     static async query<T>(condition: IQueryCondition, callback?: (err?: IAPIError | null, datas?: Array<T>) => void): Promise<TQueryResult<T>> {
         let that = new (this as any)();
-        console.log(`${that.$model}.query`);
+        console.debug(`[Model] ${that.$model}.query`);
         return await this.pageQuery<T>(condition, -1, -1, callback);
     }
 
@@ -120,7 +120,7 @@ export abstract class Model {
      */
     static async one<T>(callback?: (err?: IAPIError | null, data?: T) => void): Promise<TQuerySingleResult<T>> {
         let that = new (this as any)();
-        console.log(`${that.$model}.query`);
+        console.debug(`[Model] ${that.$model}.query`);
         let res = await this.pageQuery<T>({}, 1, 0, (err, datas) => {
             let data = (datas && datas.length) ? datas[0] : undefined;
             if (callback) callback(err, data);
@@ -141,7 +141,7 @@ export abstract class Model {
         let that = new (this as any)();
         let query = db.collection(that.$model).where(condition);
         if (page_index >= 0 && page_size > 0) {
-            console.log(`${that.$model}.pageQuery`);
+            console.debug(`[Model] ${that.$model}.pageQuery`);
             query = query.limit(page_size).skip(page_index * page_size);
         }
         return await new Promise<TQueryResult<T>>((resolve) => {
@@ -167,7 +167,7 @@ export abstract class Model {
      */
     static async count<T>(condition: IQueryCondition, callback?: (err: IAPIError | null, total: number) => void): Promise<ICountResult> {
         let that = new (this as any)();
-        console.log(`${that.$model}.count`);
+        console.debug(`[Model] ${that.$model}.count`);
         if (callback) {
             return await new Promise<ICountResult>((resolve) => {
                 db.collection(that.$model).where(condition).count({
@@ -216,7 +216,7 @@ export abstract class Model {
      * @param callback
      */
     async save(callback?: (err: IAPIError | null, _id: DocumentId | null) => void): Promise<IAddResult> {
-        console.log(`${this.$model}.save`);
+        console.debug(`[Model] ${this.$model}.save`);
         if (callback) {
             return await new Promise<IAddResult>((resolve) => {
                 db.collection(this.$model).add({
@@ -242,7 +242,7 @@ export abstract class Model {
      * @param callback
      */
     async update(callback?: (err: IAPIError | null, updated: number) => void): Promise<IUpdateResult> {
-        console.log(`${this.$model}.update: ${this._id}`);
+        console.debug(`[Model] ${this.$model}.update: ${this._id}`);
         console.assert(!this._id, `${this.$model}.update: _id 不能为空`);
         if (callback) {
             return await new Promise<IUpdateResult>((resolve) => {
@@ -271,7 +271,7 @@ export abstract class Model {
      * @param callback
      */
     async delete(callback?: (err: IAPIError | null, updated: number) => void): Promise<IRemoveResult> {
-        console.log(`${this.$model}.update: ${this._id}`);
+        console.debug(`[Model] ${this.$model}.update: ${this._id}`);
         console.assert(!this._id, '_id 不能为空');
         if (callback) {
             return await new Promise<IRemoveResult>((resolve) => {
@@ -284,7 +284,7 @@ export abstract class Model {
                         if (callback) callback(err, 0)
                         resolve({errMsg: err.errMsg, stats: {removed: 0}} as IRemoveResult);
                     }, complete: (res) => {
-                        console.log(res)
+                        console.debug(`[Model] ${res}`)
                     }
                 });
             })

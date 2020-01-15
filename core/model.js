@@ -46,7 +46,7 @@ export class Model {
     static get(_id, callback) {
         return __awaiter(this, void 0, void 0, function* () {
             let that = new this();
-            console.log(`${that.$model}.get: ${_id}`);
+            console.debug(`[Model] ${that.$model}.get: ${_id}`);
             return yield new Promise((resolve) => {
                 db.collection(that.$model).doc(_id).get({
                     success: (res) => {
@@ -73,12 +73,12 @@ export class Model {
     static all(callback) {
         return __awaiter(this, void 0, void 0, function* () {
             let that = new this();
-            console.log(`${that.$model}.all`);
+            console.debug(`[Model] ${that.$model}.all`);
             // 查询当前用户所有的 DeviceName
             return yield new Promise((resolve) => {
                 db.collection(that.$model).where({}).get({
                     success: (res) => {
-                        console.log(res);
+                        console.debug(`[Model] ${res}`);
                         let datas = res.data.map((o) => new this(o));
                         if (callback)
                             callback(null, datas);
@@ -86,7 +86,7 @@ export class Model {
                     },
                     fail: (err) => {
                         this.errToast(err);
-                        console.error('[数据库] [查询记录] 失败：', err);
+                        console.error('[Model] [查询记录] 失败：', err);
                         if (callback)
                             callback(err, []);
                         resolve({ errMsg: err.errMsg });
@@ -103,7 +103,7 @@ export class Model {
     static query(condition, callback) {
         return __awaiter(this, void 0, void 0, function* () {
             let that = new this();
-            console.log(`${that.$model}.query`);
+            console.debug(`[Model] ${that.$model}.query`);
             return yield this.pageQuery(condition, -1, -1, callback);
         });
     }
@@ -114,7 +114,7 @@ export class Model {
     static one(callback) {
         return __awaiter(this, void 0, void 0, function* () {
             let that = new this();
-            console.log(`${that.$model}.query`);
+            console.debug(`[Model] ${that.$model}.query`);
             let res = yield this.pageQuery({}, 1, 0, (err, datas) => {
                 let data = (datas && datas.length) ? datas[0] : undefined;
                 if (callback)
@@ -137,7 +137,7 @@ export class Model {
             let that = new this();
             let query = db.collection(that.$model).where(condition);
             if (page_index >= 0 && page_size > 0) {
-                console.log(`${that.$model}.pageQuery`);
+                console.debug(`[Model] ${that.$model}.pageQuery`);
                 query = query.limit(page_size).skip(page_index * page_size);
             }
             return yield new Promise((resolve) => {
@@ -166,7 +166,7 @@ export class Model {
     static count(condition, callback) {
         return __awaiter(this, void 0, void 0, function* () {
             let that = new this();
-            console.log(`${that.$model}.count`);
+            console.debug(`[Model] ${that.$model}.count`);
             if (callback) {
                 return yield new Promise((resolve) => {
                     db.collection(that.$model).where(condition).count({
@@ -221,7 +221,7 @@ export class Model {
      */
     save(callback) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(`${this.$model}.save`);
+            console.debug(`[Model] ${this.$model}.save`);
             if (callback) {
                 return yield new Promise((resolve) => {
                     db.collection(this.$model).add({
@@ -250,7 +250,7 @@ export class Model {
      */
     update(callback) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(`${this.$model}.update: ${this._id}`);
+            console.debug(`[Model] ${this.$model}.update: ${this._id}`);
             console.assert(!this._id, `${this.$model}.update: _id 不能为空`);
             if (callback) {
                 return yield new Promise((resolve) => {
@@ -284,7 +284,7 @@ export class Model {
      */
     delete(callback) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(`${this.$model}.update: ${this._id}`);
+            console.debug(`[Model] ${this.$model}.update: ${this._id}`);
             console.assert(!this._id, '_id 不能为空');
             if (callback) {
                 return yield new Promise((resolve) => {
@@ -299,7 +299,7 @@ export class Model {
                                 callback(err, 0);
                             resolve({ errMsg: err.errMsg, stats: { removed: 0 } });
                         }, complete: (res) => {
-                            console.log(res);
+                            console.debug(`[Model] ${res}`);
                         }
                     });
                 });
