@@ -118,13 +118,16 @@ export abstract class Model {
      * 获取一条记录
      * @param callback
      */
-    static async one<T>(callback?: (err?: IAPIError | null, data?: T) => void): Promise<TQueryResult<T>> {
+    static async one<T>(callback?: (err?: IAPIError | null, data?: T) => void): Promise<TQuerySingleResult<T>> {
         let that = new (this as any)();
         console.log(`${that.$model}.query`);
-        return await this.pageQuery<T>({}, 1, 0, (err, datas)=>{
+        let res = await this.pageQuery<T>({}, 1, 0, (err, datas) => {
             let data = (datas && datas.length) ? datas[0] : undefined;
-            if(callback) callback(err, data);
+            if (callback) callback(err, data);
         });
+        let o = (res.data && res.data.length) ? res.data[0] : null;
+        let data = new (this as any)(o) as T;
+        return Promise.resolve<TQuerySingleResult<T>>({errMsg: res.errMsg, data});
     }
 
     /**

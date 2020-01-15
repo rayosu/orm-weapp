@@ -115,11 +115,14 @@ export class Model {
         return __awaiter(this, void 0, void 0, function* () {
             let that = new this();
             console.log(`${that.$model}.query`);
-            return yield this.pageQuery({}, 1, 0, (err, datas) => {
+            let res = yield this.pageQuery({}, 1, 0, (err, datas) => {
                 let data = (datas && datas.length) ? datas[0] : undefined;
                 if (callback)
                     callback(err, data);
             });
+            let o = (res.data && res.data.length) ? res.data[0] : null;
+            let data = new this(o);
+            return Promise.resolve({ errMsg: res.errMsg, data });
         });
     }
     /**
