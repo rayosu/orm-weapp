@@ -33,7 +33,7 @@ export abstract class Model {
         data = data || {};
         let e = Object.getOwnPropertyNames(data);
         for (let name of e) {
-            if (!name.startsWith('$') && this.hasOwnProperty(name)) {
+            if (!name.startsWith('$')) {
                 try {
                     this[name] = data[name];
                 } catch (e) {
