@@ -215,16 +215,11 @@ export abstract class CloudModel {
     async saveOrUpdate(callback?: (result: ISetResult) => void): Promise<ISetResult> {
         let res;
         if (this._id) {
-            // @ts-ignore
-            res = await this.get(this._id);
-            if (res.data) {
-                res = await this.update((err, updated) => {
-                    if (callback) callback({errMsg: err ? err.errMsg : undefined, _id: this._id, stats: {updated}} as ISetResult);
-                });
-                return Promise.resolve(res as ISetResult)
-            }
+            res = await this.update((err, updated) => {
+                if (callback) callback({errMsg: err ? err.errMsg : undefined, _id: this._id, stats: {updated}} as ISetResult);
+            });
+            return Promise.resolve(res as ISetResult)
         }
-        delete this._id;
         res = await this.save((err, _id) => {
             if (callback) callback({errMsg: err ? err.errMsg : undefined, _id: _id, stats: {created: err ? 0 : 1}} as ISetResult);
         });

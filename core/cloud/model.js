@@ -219,7 +219,7 @@ export class CloudModel {
             let res;
             if (this._id) {
                 // @ts-ignore
-                res = yield this.get(this._id);
+                res = yield get(this._id);
                 if (res.data) {
                     res = yield this.update((err, updated) => {
                         if (callback)
