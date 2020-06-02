@@ -277,7 +277,7 @@ export class CloudModel {
     update(callback) {
         return __awaiter(this, void 0, void 0, function* () {
             console.debug(`[CloudModel] ${this.$model}.update: ${this._id}`);
-            console.assert(!this._id, `${this.$model}.update: _id 不能为空`);
+            console.assert(!!this._id, `${this.$model}.update: _id 不能为空`);
             // if (callback) {
             return yield new Promise((resolve) => {
                 db.collection(this.$model).doc(this._id).update({
@@ -310,7 +310,7 @@ export class CloudModel {
     delete(callback) {
         return __awaiter(this, void 0, void 0, function* () {
             console.debug(`[CloudModel] ${this.$model}.update: ${this._id}`);
-            console.assert(!this._id, '_id 不能为空');
+            console.assert(!!this._id, '_id 不能为空');
             // if (callback) {
             return yield new Promise((resolve) => {
                 db.collection(this.$model).doc(this._id).remove({
